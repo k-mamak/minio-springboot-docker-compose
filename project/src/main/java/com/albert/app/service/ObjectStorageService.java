@@ -5,39 +5,39 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.albert.app.model.Object;
+import com.albert.app.model.StoredObject;
 
 @Service
 public interface ObjectStorageService {
     /**
-     * Uploads a file to MinIO and returns the URL of the uploaded file.
+     * Uploads a file to Object Storage and returns the URL of the uploaded file.
      *
      * @param inputStream the InputStream of the file to upload
      * @param fileName    the name of the file to upload
      * @param contentType the content type of the file to upload
      * @return the URL of the uploaded file
      */
-    String upload(InputStream inputStream, String fileName, String contentType);
+    String store_object(InputStream inputStream, String fileName, String contentType);
 
     /**
-     * Downloads a file from MinIO.
+     * Downloads a file from Object Storage.
      *
      * @param fileName the name of the file to download
      * @return the InputStream of the downloaded file
      */
-    InputStream download(String fileName);
+    InputStream get_object(String fileName);
 
     /**
-     * Deletes a file from MinIO.
+     * Deletes a file from Object Storage.
      *
      * @param fileName the name of the file to delete
      */
-    void delete(String fileName);
+    void delete_object(String fileName);
 
     /**
-     * Lists all files stored in MinIO.
+     * Lists all files stored in Object Storage.
      *
-     * @return a List of all files stored in MinIO
+     * @return a List of all files stored in Object Storage
      */
-    List<Object> list();
+    List<StoredObject> objects_list();
 }
