@@ -5,7 +5,7 @@ import io.minio.messages.Item;
 
 import org.springframework.stereotype.Service;
 
-import com.albert.app.model.Object;
+import com.albert.app.model.StoredObject;
 import com.albert.app.service.ObjectStorageService;
 
 import javax.annotation.PostConstruct;
@@ -16,7 +16,7 @@ import java.util.*;
  * This class implements the ObjectStorageService interface and provides
  * methods to interact with a MinIO object storage service.
  */
-@Service
+@Service("minio_service")
 public class MinioService implements ObjectStorageService {
 
     private String endpoint = System.getenv("MINIO_ENDPOINT");
@@ -36,7 +36,7 @@ public class MinioService implements ObjectStorageService {
      * Initializes MinIO bucket if doesn't exist.
      */
     @PostConstruct
-    public void init() throws Exception {
+    private void init() throws Exception {
 
         boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
         if (!found) {
@@ -45,7 +45,7 @@ public class MinioService implements ObjectStorageService {
     }
 
     @Override
-    public String upload(InputStream inputStream, String file_name, String contentType) {
+    public String store_object(InputStream inputStream, String file_name, String contentType) {
         try {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
@@ -54,7 +54,7 @@ public class MinioService implements ObjectStorageService {
                     .stream(inputStream, -1,
                             10485760)
                     .build());
-            Object file = new Object();
+            StoredObject file = new StoredObject();
             file.name = file_name;
             file.setUrl();
             return file.url;
@@ -64,7 +64,7 @@ public class MinioService implements ObjectStorageService {
     }
 
     @Override
-    public InputStream download(String fileName) {
+    public InputStream get_object(String fileName) {
         try {
             return minioClient.getObject(GetObjectArgs.builder().bucket(bucket).object(fileName).build());
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class MinioService implements ObjectStorageService {
     }
 
     @Override
-    public void delete(String fileName) {
+    public void delete_object(String fileName) {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
         } catch (Exception e) {
@@ -82,13 +82,13 @@ public class MinioService implements ObjectStorageService {
     }
 
     @Override
-    public List<Object> list() {
+    public List<StoredObject> objects_list() {
         try {
-            List<Object> files = new ArrayList<>();
+            List<StoredObject> files = new ArrayList<>();
             Iterable<Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder().bucket(bucket).build());
             for (Result<Item> result : results) {
-                Object file = new Object();
+                StoredObject file = new StoredObject();
                 Item item = result.get();
                 file.name = item.objectName();
                 file.setUrl();

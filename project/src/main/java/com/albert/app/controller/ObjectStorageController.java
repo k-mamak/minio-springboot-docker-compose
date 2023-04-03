@@ -1,9 +1,10 @@
 package com.albert.app.controller;
 
-import com.albert.app.model.Object;
+import com.albert.app.model.StoredObject;
 import com.albert.app.service.ObjectStorageService;
+import com.albert.app.factory.ObjectStorageServiceFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 public class ObjectStorageController {
 
+    private final ObjectStorageService object_storage_service;
+
     @Autowired
-    private ObjectStorageService object_storage_service;
+    public ObjectStorageController(ObjectStorageServiceFactory objectStorageServiceFactory) {
+        this.object_storage_service = objectStorageServiceFactory.getObjectStorageService();
+    }
 
     /**
      * This method handles GET requests for downloading a specific file. It takes
@@ -46,7 +51,7 @@ public class ObjectStorageController {
     @GetMapping("/files/{object}")
     public void getObject(@PathVariable("object") String object, HttpServletResponse response) throws Exception {
         try {
-            InputStream inputStream = object_storage_service.download(object);
+            InputStream inputStream = object_storage_service.get_object(object);
 
             response.addHeader("Content-disposition", "attachment;filename=" + object);
             response.setContentType(URLConnection.guessContentTypeFromName(object));
@@ -70,7 +75,7 @@ public class ObjectStorageController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
         try {
-            String url = object_storage_service.upload(file.getInputStream(), file.getOriginalFilename(),
+            String url = object_storage_service.store_object(file.getInputStream(), file.getOriginalFilename(),
                     file.getContentType());
             return new ResponseEntity<>(url, HttpStatus.OK);
         } catch (Exception e) {
@@ -89,7 +94,7 @@ public class ObjectStorageController {
     @DeleteMapping("/delete/{object}")
     public ResponseEntity<Void> deleteFile(@PathVariable("object") String object) throws Exception {
         try {
-            object_storage_service.delete(object);
+            object_storage_service.delete_object(object);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             throw new Exception("Failed to delete file", e);
@@ -104,9 +109,9 @@ public class ObjectStorageController {
      * @return a list of `Object` and an HTTP status code of OK (200)
      */
     @GetMapping("/files")
-    public ResponseEntity<List<Object>> listFiles() throws Exception {
+    public ResponseEntity<List<StoredObject>> listFiles() throws Exception {
         try {
-            List<Object> files = object_storage_service.list();
+            List<StoredObject> files = object_storage_service.objects_list();
             return new ResponseEntity<>(files, HttpStatus.OK);
         } catch (Exception e) {
             throw new Exception("Failed to get files", e);

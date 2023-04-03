@@ -1,6 +1,6 @@
 package com.albert.app.model;
 
-public class Object {
+public class StoredObject {
 
     public String name;
 
