@@ -5,10 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 /**
- * The `Application` class is the entry point for running the Spring Boot
- * application.
- * It starts the application and runs it using the `SpringApplication.run`
- * method.
+ * Starts the application.
  */
 
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })

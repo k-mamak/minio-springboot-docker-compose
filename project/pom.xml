@@ -6,12 +6,10 @@
     <version>1.0</version>
 
     <properties>
-        <java.version>1.8</java.version>
         <spring-boot.version>2.6.3</spring-boot.version>
         <minio.version>8.5.2</minio.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <start-class>com.albert.app.Application</start-class>
     </properties>
 
     <dependencies>
@@ -52,10 +50,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>com.albert.app.Application</mainClass>
-                    <layout>JAR</layout>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>

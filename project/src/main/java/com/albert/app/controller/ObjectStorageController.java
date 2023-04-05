@@ -18,104 +18,87 @@ import java.net.URLConnection;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * The `ObjectStorageController` class is a Spring Boot controller that handles
- * HTTP requests related to file management. It has several methods that handle
- * different types of requests, such as uploading, downloading, listing, and
- * deleting files.
+ * HTTP requests related to object management. It has several methods that
+ * handle different types of requests, such as uploading, downloading, listing,
+ * and deleting objects.
  */
 
 @RestController
 @RequestMapping
 public class ObjectStorageController {
 
-    private final ObjectStorageService object_storage_service;
+    private final ObjectStorageService objectStorageService;
 
     @Autowired
     public ObjectStorageController(ObjectStorageServiceFactory objectStorageServiceFactory) {
-        this.object_storage_service = objectStorageServiceFactory.getObjectStorageService();
+        this.objectStorageService = objectStorageServiceFactory.getObjectStorageService();
     }
 
     /**
-     * This method handles GET requests for downloading a specific file. It takes
-     * the file name as a path variable and writes the contents of the file to the
+     * GET requests for downloading a specific object. It takes
+     * the object name as a path variable and writes the contents of the object to
+     * the
      * response's output stream.
      * 
-     * @param object   the file name
+     * @param object   the object name
      * @param response the HTTP response object
      */
-    @GetMapping("/files/{object}")
-    public void getObject(@PathVariable("object") String object, HttpServletResponse response) throws Exception {
-        try {
-            InputStream inputStream = object_storage_service.get_object(object);
+    @GetMapping("/objects/{object}")
+    public void downloadObject(@PathVariable("object") String object, HttpServletResponse response) throws Exception {
+        InputStream inputStream = objectStorageService.getObject(object);
 
-            response.addHeader("Content-disposition", "attachment;filename=" + object);
-            response.setContentType(URLConnection.guessContentTypeFromName(object));
+        response.addHeader("Content-disposition", "attachment;filename=" + object);
+        response.setContentType(URLConnection.guessContentTypeFromName(object));
 
-            // Copy the stream to the response's output stream.
-            IOUtils.copy(inputStream, response.getOutputStream());
-            response.flushBuffer();
-        } catch (Exception e) {
-            throw new Exception("Failed to download file", e);
-        }
+        // Copy the stream to the response's output stream.
+        IOUtils.copy(inputStream, response.getOutputStream());
+        response.flushBuffer();
+
     }
 
     /**
-     * This method handles POST requests for uploading a file. It takes the file as
+     * POST requests for uploading an object. It takes the object as
      * a request parameter and uploads it to the storage service using the
-     * `ObjectStorageService` component. It returns URL of the uploaded file.
+     * `ObjectStorageService` component. It returns URL of the uploaded object.
      *
-     * @param file the uploaded file
-     * @return the URL of the uploaded file and an HTTP status code of OK (200)
+     * @param object the uploaded object
+     * @return the URL of the uploaded object and an HTTP status code of OK (200)
      */
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
-        try {
-            String url = object_storage_service.store_object(file.getInputStream(), file.getOriginalFilename(),
-                    file.getContentType());
-            return new ResponseEntity<>(url, HttpStatus.OK);
-        } catch (Exception e) {
-            throw new Exception("Failed to upload file", e);
-        }
+    public ResponseEntity<String> uploadObject(@RequestParam("file") MultipartFile object) throws Exception {
+        String url = objectStorageService.storeObject(object.getInputStream(), object.getOriginalFilename(),
+                object.getContentType());
+        return new ResponseEntity<>(url, HttpStatus.OK);
+
     }
 
     /**
-     * This method handles DELETE requests for deleting a file. It takes the file
-     * name as a path variable and deletes the file from the storage service using
+     * DELETE requests for deleting an object. It takes the object
+     * name as a path variable and deletes the object from the storage service using
      * the `ObjectStorageService` component.
      *
-     * @param object the file name
+     * @param object the object name
      * @return a HTTP status code of OK (200)
      */
     @DeleteMapping("/delete/{object}")
-    public ResponseEntity<Void> deleteFile(@PathVariable("object") String object) throws Exception {
-        try {
-            object_storage_service.delete_object(object);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            throw new Exception("Failed to delete file", e);
-        }
+    public ResponseEntity<Void> deleteObject(@PathVariable("object") String object) {
+        objectStorageService.deleteObject(object);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
-     * This method handles GET requests for listing all the files in the storage
+     * GET requests for listing all the objects in the storage
      * service. It uses the `ObjectStorageService` component to get a list of
-     * `Object` representing all the files.
+     * `StoredObject` representing all the object.
      *
-     * @return a list of `Object` and an HTTP status code of OK (200)
+     * @return a list of `StoredObject` and an HTTP status code of OK (200)
      */
-    @GetMapping("/files")
-    public ResponseEntity<List<StoredObject>> listFiles() throws Exception {
-        try {
-            List<StoredObject> files = object_storage_service.objects_list();
-            return new ResponseEntity<>(files, HttpStatus.OK);
-        } catch (Exception e) {
-            throw new Exception("Failed to get files", e);
-        }
-
+    @GetMapping("/objects")
+    public ResponseEntity<List<StoredObject>> listObjects() {
+        List<StoredObject> objects = objectStorageService.getListObject();
+        return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 }

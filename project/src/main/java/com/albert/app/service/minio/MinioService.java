@@ -16,15 +16,13 @@ import java.util.*;
  * This class implements the ObjectStorageService interface and provides
  * methods to interact with a MinIO object storage service.
  */
-@Service("minio_service")
+@Service("minioService")
 public class MinioService implements ObjectStorageService {
 
+    // minIO configurations
     private String endpoint = System.getenv("MINIO_ENDPOINT");
-
     private String accessKey = System.getenv("MINIO_ACCESS_KEY");
-
     private String secretKey = System.getenv("MINIO_SECRET_KEY");
-
     private String bucket = System.getenv("MINIO_BUCKET_NAME");
 
     MinioClient minioClient = new MinioClient.Builder()
@@ -45,58 +43,54 @@ public class MinioService implements ObjectStorageService {
     }
 
     @Override
-    public String store_object(InputStream inputStream, String file_name, String contentType) {
+    public String storeObject(InputStream inputStream, String object_name, String contentType) {
         try {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
-                    .object(file_name)
+                    .object(object_name)
                     .contentType(contentType)
                     .stream(inputStream, -1,
                             10485760)
                     .build());
-            StoredObject file = new StoredObject();
-            file.name = file_name;
-            file.setUrl();
-            return file.url;
+            StoredObject object = new StoredObject(object_name);
+            return object.getUrl();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to upload file to Minio", e);
+            throw new RuntimeException("Failed to upload object to Minio", e);
         }
     }
 
     @Override
-    public InputStream get_object(String fileName) {
+    public InputStream getObject(String objectName) {
         try {
-            return minioClient.getObject(GetObjectArgs.builder().bucket(bucket).object(fileName).build());
+            return minioClient.getObject(GetObjectArgs.builder().bucket(bucket).object(objectName).build());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to download file from Minio", e);
+            throw new RuntimeException("Failed to download object from Minio", e);
         }
     }
 
     @Override
-    public void delete_object(String fileName) {
+    public void deleteObject(String objectName) {
         try {
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(objectName).build());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to delete file from Minio", e);
+            throw new RuntimeException("Failed to delete object from Minio", e);
         }
     }
 
     @Override
-    public List<StoredObject> objects_list() {
+    public List<StoredObject> getListObject() {
         try {
-            List<StoredObject> files = new ArrayList<>();
+            List<StoredObject> objects = new ArrayList<>();
             Iterable<Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder().bucket(bucket).build());
             for (Result<Item> result : results) {
-                StoredObject file = new StoredObject();
                 Item item = result.get();
-                file.name = item.objectName();
-                file.setUrl();
-                files.add(file);
+                StoredObject object = new StoredObject(item.objectName());
+                objects.add(object);
             }
-            return files;
+            return objects;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get file list from Minio", e);
+            throw new RuntimeException("Failed to get object list from Minio", e);
         }
     }
 
