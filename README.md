@@ -19,14 +19,13 @@ To get started, follow these steps:
 ```cmd 
 docker-compose up
 ```
-3. Once the containers have started, you can access the application at the **URL** **`http://{IP_ADDRESS}:{PORT}`**, where `{PORT}` is the port number specified in your .env file. If the `{PORT}` is publicly available; `{IP_ADDRESS}` is public IP address, otherwise `{IP_ADDRESS}` is `localhost`.
+3. Once the containers have started, you can access the application at the **URL** **`http://{IP_ADDRESS}:{PORT}`**, where `{IP_ADDRESS}` and `{PORT}` are specified in your .env file.
 
 ## Usage
 
 ### Uploading Objects
-To upload an object, send a POST request to **`URL/objects`** with the following parameters:
-
-- file: The file to upload.
+To upload an object, send a POST request to **`URL/upload`** with the following parameters:
+Use the form-data format for the request body and include the file that is desired to upload as the value for the *file* key.
 
 ### Downloading Objects
 To download an object, send a GET request to **`URL/objects/{object}`**, where `{object}` is the name of the object you want to download.
