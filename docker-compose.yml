@@ -23,6 +23,6 @@ services:
     env_file:
       - .env
     ports:
-      - "${PORT}:${PORT}"
+      - "${SPRING_BOOT_PORT}:${SPRING_BOOT_PORT}"
     depends_on:
       - minio
