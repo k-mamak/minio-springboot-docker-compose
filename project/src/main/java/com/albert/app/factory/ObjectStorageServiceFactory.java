@@ -17,10 +17,6 @@ public class ObjectStorageServiceFactory {
     @Qualifier("minioService")
     private ObjectStorageService minioService;
 
-    @Autowired
-    @Qualifier("s3BucketService")
-    private ObjectStorageService s3BucketService;
-
     /**
      * This method returns an instance of ObjectStorageService based on the value of
      * the OBJECT_STORAGE_SERVICE environment variable.
@@ -44,8 +40,6 @@ public class ObjectStorageServiceFactory {
         // variable value
         if (objectStorageServiceName.equalsIgnoreCase("minioService")) {
             return minioService;
-        } else if (objectStorageServiceName.equalsIgnoreCase("s3BucketService")) {
-            return s3BucketService;
         } else {
             throw new IllegalArgumentException(
                     "Invalid value for OBJECT_STORAGE_SERVICE environment variable: " + objectStorageServiceName);

@@ -3,8 +3,8 @@ package com.albert.app.controller;
 import com.albert.app.model.StoredObject;
 import com.albert.app.service.ObjectStorageService;
 import com.albert.app.factory.ObjectStorageServiceFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.lang.Exception;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,14 +49,14 @@ public class ObjectStorageController {
      */
     @GetMapping("/objects/{object}")
     public void downloadObject(@PathVariable("object") String object, HttpServletResponse response) throws Exception {
-        InputStream inputStream = objectStorageService.getObject(object);
+        String decodedObjectName = URLDecoder.decode(object, "UTF-8");
+        try (InputStream inputStream = objectStorageService.getObject(object)) {
+            response.addHeader("Content-disposition", "attachment;filename=" + decodedObjectName);
+            response.setContentType(URLConnection.guessContentTypeFromName(object));
 
-        response.addHeader("Content-disposition", "attachment;filename=" + object);
-        response.setContentType(URLConnection.guessContentTypeFromName(object));
-
-        // Copy the stream to the response's output stream.
-        IOUtils.copy(inputStream, response.getOutputStream());
-        response.flushBuffer();
+            IOUtils.copy(inputStream, response.getOutputStream());
+            response.flushBuffer();
+        }
 
     }
 
@@ -72,7 +73,6 @@ public class ObjectStorageController {
         String url = objectStorageService.storeObject(object.getInputStream(), object.getOriginalFilename(),
                 object.getContentType());
         return new ResponseEntity<>(url, HttpStatus.OK);
-
     }
 
     /**
@@ -84,8 +84,9 @@ public class ObjectStorageController {
      * @return a HTTP status code of OK (200)
      */
     @DeleteMapping("/delete/{object}")
-    public ResponseEntity<Void> deleteObject(@PathVariable("object") String object) {
-        objectStorageService.deleteObject(object);
+    public ResponseEntity<Void> deleteObject(@PathVariable("object") String object) throws Exception {
+        String decodedObjectName = URLDecoder.decode(object, "UTF-8");
+        objectStorageService.deleteObject(decodedObjectName);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -1,5 +1,7 @@
 package com.albert.app.model;
 
+import java.net.URLEncoder;
+
 /**
  * Represents a stored object.
  */
@@ -16,9 +18,10 @@ public class StoredObject {
      * @param name the name of the stored object.
      */
 
-    public StoredObject(String name) {
+    public StoredObject(String name) throws Exception {
         this.name = name;
-        this.url = String.format("http://%s:%s/objects/%s", ipAddress, port, name);
+        String encodedFileName = URLEncoder.encode(name, "UTF-8").replace("+", "%20");
+        this.url = String.format("http://%s:%s/objects/%s", ipAddress, port, encodedFileName);
 
     }
 
