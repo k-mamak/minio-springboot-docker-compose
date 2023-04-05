@@ -47,7 +47,7 @@ To delete an object, send a DELETE request to **`URL/delete/{object}`**, where `
 
 ![Diagram](../assets/diagram.png?raw=true)
 
-This application uses the Factory pattern to create an instance of the *ObjectStorageService* component. The Factory pattern is a creational pattern that provides an interface for creating objects in a superclass but allows subclasses to alter the type of objects that will be created.
+This application uses the Factory pattern to create an instance of the *ObjectStorageService* component. The Factory pattern is a creational pattern that provides an interface for creating object.
 
 In this application, we have a *ObjectStorageServiceFactory* class that creates an instance of the *ObjectStorageService* component based on the configuration specified in the `.env` file. The *ObjectStorageService* component is then injected into the *ObjectStorageController* class to handle object management requests.
 
