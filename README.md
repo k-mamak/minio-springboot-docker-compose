@@ -32,7 +32,7 @@ Use the form-data format for the request body and include the file that is desir
 
 Example usage:
 ```curl
-curl --location 'URL/upload' --form 'file=@"/path/to/your/file"'
+curl --location 'URL/upload' --form 'file=@/path/to/your/file'
 ```
 ### Downloading Objects
 To download an object, send a GET request to **`URL/objects/{object}`**, where `{object}` is the name of the object you want to download.
