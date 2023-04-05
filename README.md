@@ -19,7 +19,7 @@ To get started, follow these steps:
 ```cmd 
 docker-compose up
 ```
-3. Once the containers have started, you can access the application at the **URL** **`http://{IP_ADDRESS}:{PORT}`**, where `{PORT}` is the port number specified in your .env file .If the `{PORT}` is publicly available `{IP_ADDRESS}` is public IP address, otherwise `{IP_ADDRESS}` is `localhost`.
+3. Once the containers have started, you can access the application at the **URL** **`http://{IP_ADDRESS}:{PORT}`**, where `{PORT}` is the port number specified in your .env file. If the `{PORT}` is publicly available; `{IP_ADDRESS}` is public IP address, otherwise `{IP_ADDRESS}` is `localhost`.
 
 ## Usage
 
