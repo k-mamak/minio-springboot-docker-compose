@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.albert.app.model.StoredObject;
+import com.albert.app.util.UrlGenerator;
 
 @Service
 public interface ObjectStorageService {
@@ -36,9 +36,9 @@ public interface ObjectStorageService {
     void deleteObject(String objectName);
 
     /**
-     * Lists all objects stored in Object Storage.
+     * Lists name and url of all objects stored in Object Storage.
      *
      * @return a List of all objects stored in Object Storage
      */
-    List<StoredObject> getListObject();
+    List<UrlGenerator> getListObject();
 }

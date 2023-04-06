@@ -6,8 +6,8 @@ services:
     image: minio/minio
     container_name: minio
     environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_ACCESS_KEY: albert-health
+      MINIO_SECRET_KEY: nF95KPEfxZFQAFT0RLFzsf8/diIyZBwQz0RkictMn70=
     volumes:
       - ./data:/data
     ports:
@@ -20,9 +20,7 @@ services:
       context: ./project
       dockerfile: Dockerfile
     container_name: app
-    env_file:
-      - .env
     ports:
-      - "${SPRING_BOOT_PORT}:${SPRING_BOOT_PORT}"
+      - 8080:8080
     depends_on:
       - minio

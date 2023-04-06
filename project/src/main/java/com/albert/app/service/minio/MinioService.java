@@ -3,10 +3,11 @@ package com.albert.app.service.minio;
 import io.minio.*;
 import io.minio.messages.Item;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.albert.app.model.StoredObject;
 import com.albert.app.service.ObjectStorageService;
+import com.albert.app.util.UrlGenerator;
 
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
@@ -20,22 +21,35 @@ import java.util.*;
 public class MinioService implements ObjectStorageService {
 
     // minIO configurations
-    private String endpoint = System.getenv("MINIO_ENDPOINT");
-    private String accessKey = System.getenv("MINIO_ACCESS_KEY");
-    private String secretKey = System.getenv("MINIO_SECRET_KEY");
-    private String bucket = System.getenv("MINIO_BUCKET_NAME");
+    @Value("${minio.endpoint}")
+    private String endpoint;
 
-    MinioClient minioClient = new MinioClient.Builder()
-            .endpoint(endpoint)
-            .credentials(accessKey, secretKey)
-            .build();
+    @Value("${minio.accessKey}")
+    private String accessKey;
+
+    @Value("${minio.secretKey}")
+    private String secretKey;
+
+    @Value("${minio.bucketName}")
+    private String bucket;
+
+    @Value("${ip.address}")
+    private String ipAddress;
+
+    @Value("${spring.boot.port}")
+    private String port;
+
+    private MinioClient minioClient;
 
     /**
-     * Initializes MinIO bucket if doesn't exist.
+     * Initializes MinioClient and makes MinIO bucket if doesn't exist.
      */
     @PostConstruct
     private void init() throws Exception {
-
+        minioClient = new MinioClient.Builder()
+                .endpoint(endpoint)
+                .credentials(accessKey, secretKey)
+                .build();
         boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
         if (!found) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
@@ -49,11 +63,10 @@ public class MinioService implements ObjectStorageService {
                     .bucket(bucket)
                     .object(object_name)
                     .contentType(contentType)
-                    .stream(inputStream, -1,
-                            10485760)
+                    .stream(inputStream, -1, 10485760)
                     .build());
-            StoredObject object = new StoredObject(object_name);
-            return object.getUrl();
+            UrlGenerator metadata = new UrlGenerator(ipAddress, port, object_name);
+            return metadata.url;
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload object to Minio", e);
         }
@@ -78,15 +91,18 @@ public class MinioService implements ObjectStorageService {
     }
 
     @Override
-    public List<StoredObject> getListObject() {
+    public List<UrlGenerator> getListObject() {
         try {
-            List<StoredObject> objects = new ArrayList<>();
+            List<UrlGenerator> objects = new ArrayList<>();
             Iterable<Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder().bucket(bucket).build());
             for (Result<Item> result : results) {
                 Item item = result.get();
-                StoredObject object = new StoredObject(item.objectName());
-                objects.add(object);
+                UrlGenerator urlData = new UrlGenerator(
+                        ipAddress,
+                        port,
+                        item.objectName());
+                objects.add(urlData);
             }
             return objects;
         } catch (Exception e) {

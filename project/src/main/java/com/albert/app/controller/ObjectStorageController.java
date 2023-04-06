@@ -1,8 +1,9 @@
 package com.albert.app.controller;
 
-import com.albert.app.model.StoredObject;
 import com.albert.app.service.ObjectStorageService;
+import com.albert.app.util.UrlGenerator;
 import com.albert.app.factory.ObjectStorageServiceFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
@@ -41,8 +42,7 @@ public class ObjectStorageController {
     /**
      * GET requests for downloading a specific object. It takes
      * the object name as a path variable and writes the contents of the object to
-     * the
-     * response's output stream.
+     * the response's output stream.
      * 
      * @param object   the object name
      * @param response the HTTP response object
@@ -57,7 +57,6 @@ public class ObjectStorageController {
             IOUtils.copy(inputStream, response.getOutputStream());
             response.flushBuffer();
         }
-
     }
 
     /**
@@ -93,13 +92,13 @@ public class ObjectStorageController {
     /**
      * GET requests for listing all the objects in the storage
      * service. It uses the `ObjectStorageService` component to get a list of
-     * `StoredObject` representing all the object.
+     * `UrlGenerator` representing all the objects name and URL.
      *
-     * @return a list of `StoredObject` and an HTTP status code of OK (200)
+     * @return a list of `UrlGenerator` and an HTTP status code of OK (200)
      */
     @GetMapping("/objects")
-    public ResponseEntity<List<StoredObject>> listObjects() {
-        List<StoredObject> objects = objectStorageService.getListObject();
-        return new ResponseEntity<>(objects, HttpStatus.OK);
+    public ResponseEntity<List<UrlGenerator>> listObjects() {
+        List<UrlGenerator> metadata = objectStorageService.getListObject();
+        return new ResponseEntity<>(metadata, HttpStatus.OK);
     }
 }

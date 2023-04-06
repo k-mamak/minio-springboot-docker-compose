@@ -14,7 +14,7 @@ To get started, follow these steps:
 
 1. Clone the repository to your local machine.
 
-2. To specify environment variables, create a .env file in the root directory of the project and set the values for `{IP_ADDRESS}` and `{PORT}`.
+2. To specify properties, edit application.properties file in the project\src\main\resources directory of the project.
 
 3. Run the following command to start the object storage service and the application:
 
@@ -49,15 +49,12 @@ To delete an object, send a DELETE request to **`URL/delete/{object}`**, where `
 - Maven
 - Minio
 
-## Summary
+## Class Diagram
 
 ![Diagram](../assets/diagram.png?raw=true)
 
-The application uses the Factory pattern to create an instance of the *ObjectStorageService* component. The Factory pattern is a creational pattern that provides an interface for creating object.
-
-We have a *ObjectStorageServiceFactory* class that creates an instance of the *ObjectStorageService* component based on the configuration specified in the `.env` file. The *ObjectStorageService* component is then used in *ObjectStorageController* class to handle object management requests.
-
-Additional object storage services can be easily implemented if needed. *ObjectStorageServiceFactory* allows for the creation of different *ObjectStorageService* components depending on the needs of the application. Therefore, the application can be easily extended to support multiple object storage services without major changes to the existing codebase.
+## Future work ideas
+- 
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
