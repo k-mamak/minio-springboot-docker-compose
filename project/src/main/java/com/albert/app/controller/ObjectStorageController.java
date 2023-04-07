@@ -8,12 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.lang.Exception;
+import java.util.Map;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 
@@ -32,27 +40,43 @@ import org.apache.commons.io.IOUtils;
 @RequestMapping
 public class ObjectStorageController {
 
+    /**
+     * The ObjectStorageService instance used by this controller.
+     */
     private final ObjectStorageService objectStorageService;
 
+    /**
+     * Constructs a new ObjectStorageController instance.
+     *
+     * @param objectStorageServiceFactory the factory used to create an instance
+     *                                    of ObjectStorageService
+     */
     @Autowired
-    public ObjectStorageController(ObjectStorageServiceFactory objectStorageServiceFactory) {
-        this.objectStorageService = objectStorageServiceFactory.getObjectStorageService();
+    public ObjectStorageController(
+            final ObjectStorageServiceFactory objectStorageServiceFactory) {
+        this.objectStorageService = objectStorageServiceFactory
+                .getObjectStorageService();
     }
 
     /**
      * GET requests for downloading a specific object. It takes
-     * the object name as a path variable and writes the contents of the object to
-     * the response's output stream.
-     * 
+     * the object name as a path variable and writes the contents of the object
+     * to the response's output stream.
+     *
      * @param object   the object name
      * @param response the HTTP response object
      */
+
     @GetMapping("/objects/{object}")
-    public void downloadObject(@PathVariable("object") String object, HttpServletResponse response) throws Exception {
+    public void downloadObject(@PathVariable("object") final String object,
+            final HttpServletResponse response) throws Exception {
         String decodedObjectName = URLDecoder.decode(object, "UTF-8");
         try (InputStream inputStream = objectStorageService.getObject(object)) {
-            response.addHeader("Content-disposition", "attachment;filename=" + decodedObjectName);
-            response.setContentType(URLConnection.guessContentTypeFromName(object));
+            response.addHeader(
+                    "Content-disposition",
+                    "attachment;filename=" + decodedObjectName);
+            response.setContentType(
+                    URLConnection.guessContentTypeFromName(object));
 
             IOUtils.copy(inputStream, response.getOutputStream());
             response.flushBuffer();
@@ -65,25 +89,28 @@ public class ObjectStorageController {
      * `ObjectStorageService` component. It returns URL of the uploaded object.
      *
      * @param object the uploaded object
-     * @return the URL of the uploaded object and an HTTP status code of OK (200)
+     * @return the URL and status code of the uploaded object.
      */
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadObject(@RequestParam("file") MultipartFile object) throws Exception {
-        String url = objectStorageService.storeObject(object.getInputStream(), object.getOriginalFilename(),
+    public ResponseEntity<String> uploadObject(
+            @RequestParam("file") final MultipartFile object) throws Exception {
+        String url = objectStorageService.storeObject(object.getInputStream(),
+                object.getOriginalFilename(),
                 object.getContentType());
         return new ResponseEntity<>(url, HttpStatus.OK);
     }
 
     /**
      * DELETE requests for deleting an object. It takes the object
-     * name as a path variable and deletes the object from the storage service using
-     * the `ObjectStorageService` component.
+     * name as a path variable and deletes the object from the storage service
+     * using the `ObjectStorageService` component.
      *
      * @param object the object name
-     * @return a HTTP status code of OK (200)
+     * @return a status code.
      */
     @DeleteMapping("/delete/{object}")
-    public ResponseEntity<Void> deleteObject(@PathVariable("object") String object) throws Exception {
+    public ResponseEntity<Void> deleteObject(
+            @PathVariable("object") final String object) throws Exception {
         String decodedObjectName = URLDecoder.decode(object, "UTF-8");
         objectStorageService.deleteObject(decodedObjectName);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -92,13 +119,23 @@ public class ObjectStorageController {
     /**
      * GET requests for listing all the objects in the storage
      * service. It uses the `ObjectStorageService` component to get a list of
-     * `UrlGenerator` representing all the objects name and URL.
+     * name and URL orl all the objects.
      *
-     * @return a list of `UrlGenerator` and an HTTP status code of OK (200)
+     * @return a list of name and URL and a status code.
      */
     @GetMapping("/objects")
-    public ResponseEntity<List<UrlGenerator>> listObjects() {
-        List<UrlGenerator> metadata = objectStorageService.getListObject();
-        return new ResponseEntity<>(metadata, HttpStatus.OK);
+    public ResponseEntity<List<Map<String, String>>> listObjects() {
+        List<UrlGenerator> urlGenerators = objectStorageService.getListObject();
+        List<Map<String, String>> objects = new ArrayList<>();
+
+        for (UrlGenerator urlGenerator : urlGenerators) {
+            Map<String, String> object = new HashMap<>();
+            object.put("name", urlGenerator.getName());
+            object.put("url", urlGenerator.getUrl());
+            objects.add(object);
+        }
+
+        return new ResponseEntity<>(objects, HttpStatus.OK);
     }
+
 }

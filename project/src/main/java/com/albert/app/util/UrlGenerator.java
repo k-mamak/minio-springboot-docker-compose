@@ -7,29 +7,65 @@ import java.net.URLEncoder;
  */
 public class UrlGenerator {
 
+    /**
+     * The IP address of the stored object.
+     */
     private String ipAddress;
+    /**
+     * The port of the stored object.
+     */
     private String port;
-    public String name;
-    public String url;
+    /**
+     * The name of the stored object.
+     */
+    private String name;
+    /**
+     * The url of the stored object.
+     */
+    private String url;
 
     /**
-     * Constructs a new UrlGenerator instance with the given name, ip address and
-     * port.
+     * Constructs a new UrlGenerator instance with the given name,
+     * ip address and port.
      *
-     * @param ipAddress the ip address of the stored object.
-     * @param port      the port of the stored object.
-     * @param name      the name of the stored object.
+     * @param ipAddressValue the ip address of the stored object.
+     * @param portValue      the port of the stored object.
+     * @param objectName     the name of the stored object.
      */
-    public UrlGenerator(String ipAddress, String port, String name)
+    public UrlGenerator(final String ipAddressValue,
+            final String portValue,
+            final String objectName)
             throws Exception {
-        this.ipAddress = ipAddress;
-        this.port = port;
-        this.name = name;
+        this.ipAddress = ipAddressValue;
+        this.port = portValue;
+        this.name = objectName;
         this.url = generateUrl();
     }
 
+    /**
+     * Returns the name of the stored object.
+     *
+     * @return the name of the stored object.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the URL of the stored object.
+     *
+     * @return the URL of the stored object.
+     */
+    public String getUrl() {
+        return url;
+    }
+
     private String generateUrl() throws Exception {
-        String encodedName = URLEncoder.encode(name, "UTF-8").replace("+", "%20");
-        return String.format("http://%s:%s/objects/%s", ipAddress, port, encodedName);
+        String encodedName = URLEncoder.encode(name, "UTF-8")
+                .replace("+", "%20");
+        return String.format("http://%s:%s/objects/%s",
+                ipAddress,
+                port,
+                encodedName);
     }
 }

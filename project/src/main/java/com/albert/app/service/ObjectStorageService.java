@@ -18,7 +18,9 @@ public interface ObjectStorageService {
      * @param contentType the content type of the object to upload
      * @return the URL of the uploaded object
      */
-    String storeObject(InputStream inputStream, String objectName, String contentType);
+    String storeObject(InputStream inputStream,
+            String objectName,
+            String contentType);
 
     /**
      * Downloads an object from Object Storage.
