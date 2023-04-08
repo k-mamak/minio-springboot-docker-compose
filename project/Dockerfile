@@ -3,7 +3,8 @@ FROM maven:3.8.3-openjdk-17 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-RUN mvn clean install
+COPY config ./config
+RUN mvn clean checkstyle:check install
 
 # Final stage
 FROM openjdk:20
