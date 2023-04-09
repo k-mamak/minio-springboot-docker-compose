@@ -32,7 +32,7 @@ public class ObjectStorageControllerTest {
         // Create sample.
         byte[] data = "test data".getBytes();
         String objectName = "test object";
-        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         // Setup when getObject is called return data.
         when(service.getObject(objectName)).thenReturn(new ByteArrayInputStream(data));
@@ -43,10 +43,11 @@ public class ObjectStorageControllerTest {
         // Initialize ObjectStorageController with mocked ObjectStorageServiceFactory.
         ObjectStorageController controller = new ObjectStorageController(factory);
 
-        controller.downloadObject(objectName, response);
+        ResponseEntity<String> response = controller.downloadObject(objectName, mockResponse);
 
-        assertEquals(response.getContentAsString(), ("test data"));
-        assertEquals(response.getStatus(), HttpStatus.OK.value());
+        assertEquals(mockResponse.getContentAsString(), ("test data"));
+        assertEquals(mockResponse.getStatus(), HttpStatus.OK.value());
+        assertEquals(response.getBody(), "Downloaded successfully");
     }
 
     @Test

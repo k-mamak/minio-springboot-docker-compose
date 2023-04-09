@@ -65,10 +65,12 @@ public class ObjectStorageController {
      *
      * @param object   the object name
      * @param response the HTTP response object
+     * @return status code.
      */
 
     @GetMapping("/objects/{object}")
-    public void downloadObject(@PathVariable("object") final String object,
+    public ResponseEntity<String> downloadObject(
+            @PathVariable("object") final String object,
             final HttpServletResponse response) throws Exception {
         String decodedObjectName = URLDecoder.decode(object, "UTF-8");
         try (InputStream inputStream = objectStorageService.getObject(object)) {
@@ -80,6 +82,8 @@ public class ObjectStorageController {
 
             IOUtils.copy(inputStream, response.getOutputStream());
             response.flushBuffer();
+            return new ResponseEntity<>(
+                    "Downloaded successfully", HttpStatus.OK);
         }
     }
 
@@ -109,11 +113,11 @@ public class ObjectStorageController {
      * @return a status code.
      */
     @DeleteMapping("/delete/{object}")
-    public ResponseEntity<Void> deleteObject(
+    public ResponseEntity<String> deleteObject(
             @PathVariable("object") final String object) throws Exception {
         String decodedObjectName = URLDecoder.decode(object, "UTF-8");
         objectStorageService.deleteObject(decodedObjectName);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
     }
 
     /**
